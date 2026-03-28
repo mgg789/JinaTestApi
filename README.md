@@ -1,6 +1,9 @@
+# Jina Embeddings test API
+Проект позволяет создавать модели на базе Jina Embeddings V3 (тяжёлой версии), делая запрос на векторизацию текста прямо в API Droidje Cloud. 
+
 # Embeddings API — как использовать
 
-**Base URL:** `http://localhost:47821`
+**Base URL:** `https://ai.droidje-cloud.ru`
 
 ## Установка
 
@@ -13,8 +16,8 @@ pip install requests numpy
 ```python
 import requests
 
-API_URL = "http://localhost:47821"
-AUTH = ("admin", "your_password")
+API_URL = "https://ai.droidje-cloud.ru"
+AUTH = ("login", "password")
 
 response = requests.post(
     f"{API_URL}/embed",
