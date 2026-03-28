@@ -1,0 +1,27 @@
+services:
+  embeddings:
+    build: .
+    image: jina-embeddings-api
+    container_name: jina-embeddings
+    ports:
+      - "47821:47821"
+    volumes:
+      - ./models:/app/models
+    restart: unless-stopped
+    # GPU support — comment out the devices section if the server has no GPU
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"       # максимум 4 ядра
+          memory: 4G
+        reservations:
+          cpus: "1.0"       # гарантированный минимум
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - PYTHONUNBUFFERED=1
+      - API_USER=admin
+      - API_PASSWORD=change_me
