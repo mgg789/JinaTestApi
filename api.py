@@ -26,21 +26,28 @@ _semaphore: asyncio.Semaphore | None = None
 
 
 MODEL_PATH = Path("./models/jina-embeddings-v3")
-MODEL_REPO = "jinaai/jina-embeddings-v3-hf"
+MODEL_REPO = "jinaai/jina-embeddings-v3"
 
 
 def _ensure_model() -> None:
-    if MODEL_PATH.is_dir() and any(MODEL_PATH.iterdir()):
-        return
-    logger.info("Model not found locally, downloading from HuggingFace...")
     from huggingface_hub import snapshot_download
-    MODEL_PATH.mkdir(parents=True, exist_ok=True)
-    snapshot_download(
-        repo_id=MODEL_REPO,
-        local_dir=str(MODEL_PATH),
-        local_dir_use_symlinks=False,
-    )
-    logger.info("Model downloaded successfully.")
+    from transformers import AutoConfig
+
+    if not (MODEL_PATH.is_dir() and any(MODEL_PATH.iterdir())):
+        logger.info("Model not found locally, downloading from HuggingFace...")
+        MODEL_PATH.mkdir(parents=True, exist_ok=True)
+        snapshot_download(
+            repo_id=MODEL_REPO,
+            local_dir=str(MODEL_PATH),
+        )
+        logger.info("Model downloaded successfully.")
+
+    # Pre-warm the transformers modules cache for custom code (trust_remote_code).
+    # jina-embeddings-v3 pulls jinaai/xlm-roberta-flash-implementation at load time.
+    # This must happen before JinaEmbedder sets HF_HUB_OFFLINE=1.
+    logger.info("Pre-warming transformers module cache...")
+    AutoConfig.from_pretrained(str(MODEL_PATH), trust_remote_code=True)
+    logger.info("Module cache ready.")
 
 
 @asynccontextmanager

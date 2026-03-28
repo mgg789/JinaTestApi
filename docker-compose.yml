@@ -7,20 +7,16 @@ services:
       - "47821:47821"
     volumes:
       - ./models:/app/models
+      - ./hf_cache:/root/.cache/huggingface
     restart: unless-stopped
-    # GPU support — comment out the devices section if the server has no GPU
     deploy:
       resources:
         limits:
-          cpus: "2.0"       # максимум 4 ядра
+          cpus: "2.0"
           memory: 4G
         reservations:
-          cpus: "1.0"       # гарантированный минимум
+          cpus: "1.0"
           memory: 4G
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
     environment:
       - PYTHONUNBUFFERED=1
       - API_USER=admin
